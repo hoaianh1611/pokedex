@@ -126,6 +126,12 @@ router.get("/:singleid", function (req, res, next) {
 
     const index = data.findIndex((e) => e.id == singleid);
 
+    if (data.filter((e) => e.id != singleid).length > 0) {
+      const exception = new Error(`Pokemon not found`);
+      exception.statusCode = 401;
+      throw exception;
+    }
+
     if (index == 0) {
       result = {
         pokemon: data[index],
