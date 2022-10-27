@@ -26,7 +26,7 @@ const pokemonTypes = [
 ];
 
 //Read data from db.json then parse to JSobject
-let db = fs.readFileSync(path.resolve(__dirname, "../db/db.json"), "utf-8");
+let db = fs.readFileSync("db.json", "utf-8");
 
 db = JSON.parse(db);
 const { data } = db;
@@ -41,7 +41,14 @@ const totalPokemons = db.totalPokemons;
 
 router.get("/", function (req, res, next) {
   //input validation
-  const allowedFilter = ["name", "type", "page", "limit"];
+  const allowedFilter = [
+    "search",
+    "type",
+    "abilities",
+    "category",
+    "page",
+    "limit",
+  ];
   try {
     let { page, limit, ...filterQuery } = req.query;
     page = parseInt(page) || 1;
@@ -62,26 +69,49 @@ router.get("/", function (req, res, next) {
     let offset = limit * (page - 1);
 
     //Filter data by title
+
     let result = [];
 
     if (filterKeys.length) {
       filterKeys.forEach((condition) => {
-        result = result.length
-          ? result.filter(
-              (pokemon) => pokemon[condition] === filterQuery[condition]
-            )
-          : data.filter(
-              (pokemon) => pokemon[condition] === filterQuery[condition]
-            );
+        if (filterKeys == "type") {
+          result = result.length
+            ? result.filter((pokemon) =>
+                pokemon.types.includes(filterQuery[condition].toLowerCase())
+              )
+            : data.filter((pokemon) =>
+                pokemon.types.includes(filterQuery[condition].toLowerCase())
+              );
+        } else if (filterKeys == "search") {
+          result = result.length
+            ? result.filter((pokemon) =>
+                pokemon.name.includes(filterQuery[condition].toLowerCase())
+              )
+            : data.filter((pokemon) =>
+                pokemon.name.includes(filterQuery[condition].toLowerCase())
+              );
+        } else {
+          result = result.length
+            ? result.filter(
+                (pokemon) => pokemon[condition] === filterQuery[condition]
+              )
+            : data.filter(
+                (pokemon) => pokemon[condition] === filterQuery[condition]
+              );
+        }
       });
     } else {
       result = data;
     }
-
+    let newData = {
+      data: result.slice(offset, offset + limit),
+      totalPokemons: result.length,
+    };
     //then select number of result by offset
-    result = result.slice(offset, offset + limit);
+    // result = result.slice(offset, offset + limit);
+
     //send response
-    res.status(200).send(result);
+    res.status(200).send(newData);
   } catch (error) {
     next(error);
   }
@@ -116,7 +146,9 @@ router.get("/:singleid", function (req, res, next) {
       };
     }
 
-    res.status(200).send(result);
+    let newData = { data: result };
+
+    res.status(200).send(newData);
   } catch (error) {
     next(error);
   }
@@ -124,7 +156,7 @@ router.get("/:singleid", function (req, res, next) {
 
 /**
  * params: /
- * description: post a book
+ * description: post a pokemon
  * query:
  * method: post
  */
@@ -139,29 +171,43 @@ router.post("/", (req, res, next) => {
       throw exception;
     }
 
+    if (data.filter((e) => e.id == id || e.name == name).length > 0) {
+      const exception = new Error(`The Pokémon already exists.`);
+      exception.statusCode = 401;
+      throw exception;
+    }
+
+    if (types.some((t) => pokemonTypes.includes(t)) === false) {
+      const exception = new Error(`Pokémon's type is invalid.`);
+      exception.statusCode = 401;
+      throw exception;
+    }
+
+    if (types.length > 2) {
+      const exception = new Error(`Pokémon can only have one or two types.`);
+      exception.statusCode = 401;
+      throw exception;
+    }
+
     //post processing
     const newPokemon = {
-      id: totalPokemons,
+      id: id || totalPokemons,
       name,
       types,
       url,
     };
-    //Read data from db.json then parse to JSobject
-    let db = fs.readFileSync("db.json", "utf-8");
-    db = JSON.parse(db);
-    const { data } = db;
 
-    //Add new book to book JS object
+    //Add new pokemon to pokemon JS object
     data.push(newPokemon);
-    //Add new book to db JS object
-    db.data = newPokemon;
+    //Add new pokemon to db JS object
+    db.data = data;
     //db JSobject to JSON string
     db = JSON.stringify(db);
     //write and save to db.json
     fs.writeFileSync("db.json", db);
 
     //post send response
-    res.status(200).send(newBook);
+    res.status(200).send(newPokemon);
   } catch (error) {
     next(error);
   }
@@ -232,17 +278,16 @@ router.delete("/:singleId", (req, res, next) => {
     const { singleId } = req.params;
     //delete processing
     //find pokemon by id
-    const targetIndex = data.findIndex((pokemon) => {
-      pokemon.id === singleId;
-    });
-    console.log(targetIndex);
+    const targetIndex = data.findIndex((item) => item.id == singleId);
+
     if (targetIndex < 0) {
       const exception = new Error(`Pokemon not found`);
       exception.statusCode = 404;
       throw exception;
     }
     //filter db object
-    db.data = data.filter((pokemon) => pokemon.id !== singleId);
+    db.data = data.filter((pokemon) => pokemon.id != singleId);
+    db.totalPokemons = db.data.length;
 
     //db JSobject to JSON string
     db = JSON.stringify(db);

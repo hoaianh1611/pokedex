@@ -4,7 +4,7 @@ const imgFolder = "./img";
 
 const createPokemon = async () => {
   let newData = await csv().fromFile("pokemon.csv");
-  let data = JSON.parse(fs.readFileSync("db.json"));
+  let data = JSON.parse(fs.readFileSync("../db.json"));
   let images = fs.readdirSync(imgFolder);
 
   images = images.map((e) => {
@@ -13,26 +13,32 @@ const createPokemon = async () => {
 
   newData = newData.map((e, i) => {
     let id = i + 1;
-    let url = [];
+    let url;
     if (id) {
       images.find((p) => {
         if (p.includes("-")) {
           let image = p.split("-");
           if (parseInt(image[0]) === id) {
-            return url.push(`http://localhost:5500/db/img/${p}.jpg`);
+            return (url = `http://localhost:5500/db/img/${p}.jpg`);
           }
         } else {
           if (parseInt(p) === id)
-            return url.push(`http://localhost:5500/db/img/${p}.jpg`);
+            return (url = `http://localhost:5500/db/img/${p}.jpg`);
         }
       });
     }
 
-    if (url.length != 0) {
+    if (url) {
       return {
         id: id,
-        name: e.Name,
-        types: e.Type2 ? [e.Type1, e.Type2] : [e.Type1],
+        name: e.name,
+        types: e.type_2
+          ? [e.type_1.toLowerCase(), e.type_2.toLowerCase()]
+          : [e.type_1.toLowerCase()],
+        height: `${e.height_m} m`,
+        weight: `${e.weight_kg} kg`,
+        abilities: e.ability_1,
+        category: e.species,
         url: url,
       };
     }
@@ -44,7 +50,7 @@ const createPokemon = async () => {
   data.data = newData;
   data.totalPokemons = newData.length;
 
-  fs.writeFileSync("db.json", JSON.stringify(data));
+  fs.writeFileSync("../db.json", JSON.stringify(data));
 };
 
 createPokemon();
