@@ -70,7 +70,7 @@ The REST API to the example app is described below.
 
     {"status":404,"reason":"Pokemon not found"}
 
-## Create a new Thing
+## Create a new Pokemon
 
 ### Request
 
