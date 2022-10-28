@@ -126,12 +126,6 @@ router.get("/:singleid", function (req, res, next) {
 
     const index = data.findIndex((e) => e.id == singleid);
 
-    if (data.filter((e) => e.id != singleid).length > 0) {
-      const exception = new Error(`Pokemon not found`);
-      exception.statusCode = 401;
-      throw exception;
-    }
-
     if (index == 0) {
       result = {
         pokemon: data[index],
@@ -240,6 +234,18 @@ router.put("/:singleId", (req, res, next) => {
 
     if (notAllow.length) {
       const exception = new Error(`Update field not allow`);
+      exception.statusCode = 401;
+      throw exception;
+    }
+
+    if (types.some((t) => pokemonTypes.includes(t)) === false) {
+      const exception = new Error(`Pokémon's type is invalid.`);
+      exception.statusCode = 401;
+      throw exception;
+    }
+
+    if (types.length > 2) {
+      const exception = new Error(`Pokémon can only have one or two types.`);
       exception.statusCode = 401;
       throw exception;
     }

@@ -7209,6 +7209,12 @@
       "abilities": "Rough Skin",
       "category": "Cave Pokémon",
       "url": "http://localhost:5500/db/img/721.jpg"
+    },
+    {
+      "id": 722,
+      "name": "Deo",
+      "types": ["dark"],
+      "url": ["http://localhost:5500/db/img/5.jpg"]
     }
   ],
   "totalPokemons": 721
