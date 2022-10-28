@@ -126,13 +126,19 @@ router.get("/:singleid", function (req, res, next) {
 
     const index = data.findIndex((e) => e.id == singleid);
 
+    if (index < 0) {
+      const exception = new Error(`Pokemon not found`);
+      exception.statusCode = 404;
+      throw exception;
+    }
+
     if (index == 0) {
       result = {
         pokemon: data[index],
         previousPokemon: data[totalPokemons - 1],
         nextPokemon: data[index + 1],
       };
-    } else if (index == totalPokemons - 1) {
+    } else if (index == totalPokemons) {
       result = {
         pokemon: data[index],
         previousPokemon: data[index - 1],
@@ -223,7 +229,15 @@ router.post("/", (req, res, next) => {
 router.put("/:singleId", (req, res, next) => {
   //put input validation
   try {
-    const allowUpdate = ["name", "types", "url"];
+    const allowUpdate = [
+      "name",
+      "types",
+      "url",
+      "height",
+      "weight",
+      "abilities",
+      "category",
+    ];
 
     const { singleId } = req.params;
 
@@ -238,31 +252,37 @@ router.put("/:singleId", (req, res, next) => {
       throw exception;
     }
 
-    if (types.some((t) => pokemonTypes.includes(t)) === false) {
-      const exception = new Error(`Pokémon's type is invalid.`);
-      exception.statusCode = 401;
-      throw exception;
-    }
+    if (updateKeys == "types") {
+      const types = updates["types"];
+      if (types.some((t) => pokemonTypes.includes(t)) === false) {
+        const exception = new Error(`Pokémon's type is invalid.`);
+        exception.statusCode = 401;
+        throw exception;
+      }
 
-    if (types.length > 2) {
-      const exception = new Error(`Pokémon can only have one or two types.`);
-      exception.statusCode = 401;
-      throw exception;
+      if (types.length > 2) {
+        const exception = new Error(`Pokémon can only have one or two types.`);
+        exception.statusCode = 401;
+        throw exception;
+      }
     }
 
     //put processing
 
-    //find book by id
-    const targetIndex = data.findIndex((i) => i.id === singleId);
-    if (targetIndex < 0) {
+    //find pokemon by id
+    const index = data.findIndex((e) => e.id == singleId);
+
+    if (index < 0) {
       const exception = new Error(`Pokemon not found`);
       exception.statusCode = 404;
       throw exception;
     }
 
-    //Update new content to db book JS object
-    const updatedPokemon = { ...db.data[targetIndex], ...updates };
-    db.data[targetIndex] = updatedPokemon;
+    //Update new content to db data JS object
+    const updatedPokemon = { ...data[index], ...updates };
+    data[index] = updatedPokemon;
+
+    db.data = data;
 
     //db JSobject to JSON string
     db = JSON.stringify(db);
@@ -271,7 +291,7 @@ router.put("/:singleId", (req, res, next) => {
     fs.writeFileSync("db.json", db);
 
     //put send response
-    res.status(200).send(updatedBook);
+    res.status(200).send(updatedPokemon);
   } catch (error) {
     next(error);
   }
