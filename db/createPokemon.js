@@ -31,7 +31,7 @@ const createPokemon = async () => {
     if (url) {
       return {
         id: id,
-        name: e.name,
+        name: e.name.toLowerCase(),
         types: e.type_2
           ? [e.type_1.toLowerCase(), e.type_2.toLowerCase()]
           : [e.type_1.toLowerCase()],

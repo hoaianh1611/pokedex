@@ -84,19 +84,23 @@ router.get("/", function (req, res, next) {
               );
         } else if (filterKeys == "search") {
           result = result.length
-            ? result.filter((pokemon) =>
-                pokemon.name.includes(filterQuery[condition].toLowerCase())
+            ? result.filter(
+                (pokemon) =>
+                  pokemon["name"] == filterQuery[condition].toLowerCase()
               )
-            : data.filter((pokemon) =>
-                pokemon.name.includes(filterQuery[condition].toLowerCase())
+            : data.filter(
+                (pokemon) =>
+                  pokemon["name"] == filterQuery[condition].toLowerCase()
               );
         } else {
           result = result.length
             ? result.filter(
-                (pokemon) => pokemon[condition] === filterQuery[condition]
+                (pokemon) =>
+                  pokemon[condition] == filterQuery[condition].toLowerCase()
               )
             : data.filter(
-                (pokemon) => pokemon[condition] === filterQuery[condition]
+                (pokemon) =>
+                  pokemon[condition] == filterQuery[condition].toLowerCase()
               );
         }
       });
