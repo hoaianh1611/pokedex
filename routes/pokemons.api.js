@@ -74,6 +74,7 @@ router.get("/", function (req, res, next) {
 
     if (filterKeys.length) {
       filterKeys.forEach((condition) => {
+        console.log(filterQuery[condition]);
         if (filterKeys == "type") {
           result = result.length
             ? result.filter((pokemon) =>
@@ -95,12 +96,10 @@ router.get("/", function (req, res, next) {
         } else {
           result = result.length
             ? result.filter(
-                (pokemon) =>
-                  pokemon[condition] == filterQuery[condition].toLowerCase()
+                (pokemon) => pokemon[condition] == filterQuery[condition]
               )
             : data.filter(
-                (pokemon) =>
-                  pokemon[condition] == filterQuery[condition].toLowerCase()
+                (pokemon) => pokemon[condition] == filterQuery[condition]
               );
         }
       });

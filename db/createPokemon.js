@@ -37,8 +37,8 @@ const createPokemon = async () => {
           : [e.type_1.toLowerCase()],
         height: `${e.height_m} m`,
         weight: `${e.weight_kg} kg`,
-        abilities: e.ability_1,
-        category: e.species,
+        abilities: e.ability_1.toLowerCase(),
+        category: e.species.toLowerCase(),
         url: url,
       };
     }
