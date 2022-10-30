@@ -96,10 +96,14 @@ router.get("/", function (req, res, next) {
         } else {
           result = result.length
             ? result.filter(
-                (pokemon) => pokemon[condition] == filterQuery[condition]
+                (pokemon) =>
+                  pokemon[condition].toLowerCase() ==
+                  filterQuery[condition].toLowerCase()
               )
             : data.filter(
-                (pokemon) => pokemon[condition] == filterQuery[condition]
+                (pokemon) =>
+                  pokemon[condition].toLowerCase() ==
+                  filterQuery[condition].toLowerCase()
               );
         }
       });
