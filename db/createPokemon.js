@@ -19,11 +19,11 @@ const createPokemon = async () => {
         if (p.includes("-")) {
           let image = p.split("-");
           if (parseInt(image[0]) === id) {
-            return (url = `http://localhost:5500/db/img/${p}.jpg`);
+            return (url = `https://pokemon-api-vxj0.onrender.com/db/img/${p}.jpg`);
           }
         } else {
           if (parseInt(p) === id)
-            return (url = `http://localhost:5500/db/img/${p}.jpg`);
+            return (url = `https://pokemon-api-vxj0.onrender.com/db/img/${p}.jpg`);
         }
       });
     }
